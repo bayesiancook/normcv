@@ -1,7 +1,7 @@
 CC=g++
 CPPFLAGS= -Wall -O3 -std=c++11
 LDFLAGS= -O3
-SRCS=  Random.cpp
+SRCS=  Random.cpp Chrono.cpp
 
 OBJS=$(patsubst %.cpp,%.o,$(SRCS))
 ALL_SRCS=$(wildcard *.cpp)
