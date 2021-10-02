@@ -41,28 +41,6 @@ int main (int argc, char* argv[])   {
         double stdev = sqrt(var);
         double estbias = -0.5*var;
 
-        /*
-        double mean = 0;
-        double var = 0;
-        for (int subrep=0; subrep<subnrep; subrep++)    {
-
-            double isl = model.GetISLogCV(n,m,nsample);
-            if (ref)    {
-                isl -= refl;
-            }
-
-            mean += isl;
-            var += isl*isl;
-
-            meanerr2 += (isl-truel)*(isl-truel);
-        }
-
-        mean /= subnrep;
-        var /= subnrep;
-        var -= mean*mean;
-        double stdev = sqrt(var/(subnrep-1)*subnrep);
-        */
-
         meanerr2 += (isl-truel)*(isl-truel);
         meanstdev += stdev;
         meanestbias += estbias;
