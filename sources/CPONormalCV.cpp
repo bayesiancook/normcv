@@ -20,6 +20,8 @@ int main (int argc, char* argv[])   {
     double meandesterr2 = 0;
     double meanestbias = 0;
 
+    // double c = rnd::GetRandom().get_studentC(nsample-1);
+
     for (int rep=0; rep<nrep; rep++)    {
 
         NormalModel model(p, n, theta, tau, tau0);
@@ -34,6 +36,7 @@ int main (int argc, char* argv[])   {
         double var1, var2, ess1, ess2;
         double ssl1 = model.GetLogCPO(nsample, sitecv1, var1, ess1);
         double ssl2 = model.GetLogCPO(nsample, sitecv2, var2, ess2);
+        double ssl = 0.5 * (ssl1 + ssl2);
 
         double var = 0;
         for (int i=0; i<n; i++) {
@@ -46,12 +49,12 @@ int main (int argc, char* argv[])   {
         double dssl = 0.5 * (ssl1 + ssl2) - 0.5 * var;
         double desterr2 = var;
 
-        meanssl += ssl1;
+        meanssl += ssl;
         meandssl += dssl;
         meanestbias += estbias;
         meanesterr2 += esterr2;
         meandesterr2 += desterr2;
-        meanerr2 += (ssl1-truel)*(ssl1-truel);
+        meanerr2 += (ssl-truel)*(ssl-truel);
         meanderr2 += (dssl-truel)*(dssl-truel);
         meaness += ess1;
 
