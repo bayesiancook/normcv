@@ -208,8 +208,8 @@ class NormalModel   {
         for (int i=0; i<nsite; i++) {
             double sitetot = 0;
             for (int j=0; j<p; j++) {
-                double mx1 = (n*meanx[j] - X[i][p])/(n-1);
-                double mx2 = (n*meanx2[j] - X[i][p]*X[i][p])/(n-1);
+                double mx1 = (n*meanx[j] - X[i][j])/(n-1);
+                double mx2 = (n*meanx2[j] - X[i][j]*X[i][j])/(n-1);
                 double px = (n-1)*tau / (tau0 + (n-1)*tau) * mx1;
                 double pv = (n-1)*tau / (tau0 + (n-1)*tau) * mx2 - px*px;
                 sitetot += 0.5 * (-(n-1)*log(2*Pi) + (n-1)*log(tau) + log(tau0/(tau0 + (n-1)*tau)) - (tau0 + (n-1)*tau)*pv);
@@ -242,6 +242,8 @@ class NormalModel   {
 
     double GetLogCPO(int nsample, vector<double>& sitecv, double& meanvar, double& meaness)  {
 
+        ComputeSuffStats(nsite);
+
         vector<vector<double>> logl(nsample, vector<double>(nsite,0));
         vector<double> theta(p,0);
 
@@ -259,16 +261,16 @@ class NormalModel   {
         meaness = 0;
         double cv = 0;
         for (int i=0; i<nsite; i++) {
-            double max = 0;
+            double min = 0;
             for (int rep=0; rep<nsample; rep++) {
-                if ((!rep) || (logl[rep][i] < max)) {
-                    logl[rep][i] = max;
+                if ((!rep) || (min > logl[rep][i])) {
+                    min = logl[rep][i];
                 }
             }
             double tot = 0;
             double tot2 = 0;
             for (int rep=0; rep<nsample; rep++) {
-                double tmp = exp(logl[rep][i] - max);
+                double tmp = exp(min - logl[rep][i]);
                 tot += tmp;
                 tot2 += tmp*tmp;
             }
@@ -277,14 +279,13 @@ class NormalModel   {
             tot2 /= tot*tot;
             double var = (tot2 - 1) / (nsample-1);
             double ess = nsample/tot2;
-            double sitecpo = log(tot) + max;
+            double sitecpo = min - log(tot);
 
             sitecv[i] = sitecpo;
             cv += sitecpo;
             meanvar += var;
             meaness += ess;
         }
-        cv /= nsite;
         meanvar /= nsite;
         meaness /= nsite;
 

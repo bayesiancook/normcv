@@ -39,11 +39,11 @@ int main (int argc, char* argv[])   {
         for (int i=0; i<n; i++) {
             var += 0.5 * (sitecv1[i] - sitecv2[i]) * (sitecv1[i] - sitecv2[i]);
         }
-        cerr << truel << '\t' << var << '\t' << n*var1 << '\t' << n*var2 << '\t' << ess1 << '\t' << ess2 << '\n';
-        double estbias = -0.5 * var;
+
+        double estbias = 0.5 * var;
         double esterr2 = var + estbias*estbias;
 
-        double dssl = 0.5 * (ssl1 + ssl2) + 0.5 * var;
+        double dssl = 0.5 * (ssl1 + ssl2) - 0.5 * var;
         double desterr2 = var;
 
         meanssl += ssl1;
