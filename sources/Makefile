@@ -8,7 +8,7 @@ ALL_SRCS=$(wildcard *.cpp)
 ALL_OBJS=$(patsubst %.cpp,%.o,$(ALL_SRCS))
 
 PROGSDIR=../data
-ALL= isnormcv 
+ALL= ssnormcv isnormcv 
 PROGS=$(addprefix $(PROGSDIR)/, $(ALL))
 
 .PHONY: all clean
@@ -32,6 +32,9 @@ ifneq ($(MAKECMDGOALS),clean)
 endif
 
 # Targets
+
+$(PROGSDIR)/ssnormcv: SSNormalCV.o $(OBJS)
+	$(CC) SSNormalCV.o $(OBJS) $(LDFLAGS) $(LIBS) -o $@
 
 $(PROGSDIR)/isnormcv: ISNormalCV.o $(OBJS)
 	$(CC) ISNormalCV.o $(OBJS) $(LDFLAGS) $(LIBS) -o $@
