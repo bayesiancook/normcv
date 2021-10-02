@@ -79,6 +79,24 @@ class NormalModel   {
         testm = m;
     }
 
+    double GetSiteLogProb(const vector<double>& theta, int i)   {
+        double s2 = 0;
+        for (int j=0; j<p; j++) {
+            s2 += (X[i][j]-theta[j])*(X[i][j]-theta[j]);
+        }
+        double ret = 0.5*(p*log(tau/2/Pi) - tau*s2);
+        return ret;
+    }
+
+    double GetLogProb(const vector<double>& theta, vector<double>& logl)    {
+        double tot = 0;
+        for (int i=0; i<nsite; i++) {
+            logl[i] = GetSiteLogProb(theta, i);
+            tot += logl[i];
+        }
+        return tot;
+    }
+
     double GetLogMarginal0(int n)   {
         ComputeSuffStats(n);
         double tot = 0;
@@ -178,5 +196,111 @@ class NormalModel   {
         vector<double> sitecv(m,0);
         return GetSteppingLogCV(n, m, nsample, sitecv, meaness, meanvar) - GetLogCV0(n,m);
     }
+
+    double GetLooCV(vector<double>& sitecv)    {
+
+        ComputeSuffStats(nsite);
+
+        double logtotn = GetLogMarginal(nsite);
+
+        int n = nsite;
+        double tot = 0;
+        for (int i=0; i<nsite; i++) {
+            double sitetot = 0;
+            for (int j=0; j<p; j++) {
+                double mx1 = (n*meanx[j] - X[i][p])/(n-1);
+                double mx2 = (n*meanx2[j] - X[i][p]*X[i][p])/(n-1);
+                double px = (n-1)*tau / (tau0 + (n-1)*tau) * mx1;
+                double pv = (n-1)*tau / (tau0 + (n-1)*tau) * mx2 - px*px;
+                sitetot += 0.5 * (-(n-1)*log(2*Pi) + (n-1)*log(tau) + log(tau0/(tau0 + (n-1)*tau)) - (tau0 + (n-1)*tau)*pv);
+            }
+            sitecv[i] = logtotn - sitetot;
+            tot += sitecv[i];
+        }
+        return tot;
+    }
+
+    double GetLooCV0(vector<double>& sitecv)   {
+        vector<double> theta(p,0);
+        for (int j=0; j<p; j++) {
+            theta[j] = 0;
+        }
+        double logp = GetLogProb(theta, sitecv);
+        return logp;
+    }
+
+    double GetDLooCV(vector<double>& sitecv) {
+        vector<double> sitecv0(nsite, 0);
+        double logp = GetLooCV(sitecv);
+        double logp0 = GetLooCV0(sitecv0);
+        for (int i=0; i<nsite; i++) {
+            sitecv[i] -= sitecv0[i];
+        }
+        logp -= logp0;
+        return logp;
+    }
+
+    double GetLogCPO(int nsample, vector<double>& sitecv, double& meanvar, double& meaness)  {
+
+        vector<vector<double>> logl(nsample, vector<double>(nsite,0));
+        vector<double> theta(p,0);
+
+        double posttau = tau0 + nsite*tau;
+        double sigma = 1.0 / sqrt(posttau);
+
+        for (int rep=0; rep<nsample; rep++) {
+            for (int j=0; j<p; j++) {
+                theta[j] = sigma*rnd::GetRandom().sNormal() + postx[j];
+            }
+            GetLogProb(theta, logl[rep]);
+        }
+
+        meanvar = 0;
+        meaness = 0;
+        double cv = 0;
+        for (int i=0; i<nsite; i++) {
+            double max = 0;
+            for (int rep=0; rep<nsample; rep++) {
+                if ((!rep) || (logl[rep][i] < max)) {
+                    logl[rep][i] = max;
+                }
+            }
+            double tot = 0;
+            double tot2 = 0;
+            for (int rep=0; rep<nsample; rep++) {
+                double tmp = exp(logl[rep][i] - max);
+                tot += tmp;
+                tot2 += tmp*tmp;
+            }
+            tot /= nsample;
+            tot2 /= nsample;
+            tot2 /= tot*tot;
+            double var = (tot2 - 1) / (nsample-1);
+            double ess = nsample/tot2;
+            double sitecpo = log(tot) + max;
+
+            sitecv[i] = sitecpo;
+            cv += sitecpo;
+            meanvar += var;
+            meaness += ess;
+        }
+        cv /= nsite;
+        meanvar /= nsite;
+        meaness /= nsite;
+
+        return cv;
+    }
+
+    double GetDLogCPO(int nsample, vector<double>& sitecv, double& meanvar, double& meaness)  {
+        double logp = GetLogCPO(nsample, sitecv, meanvar, meaness);
+        vector<double> sitecv0(nsite,0);
+        double logp0 = GetLooCV0(sitecv0);
+        for (int i=0; i<nsite; i++) {
+            sitecv[i] -= sitecv0[i];
+        }
+        logp -= logp0;
+        return logp;
+    }
+
 };
 

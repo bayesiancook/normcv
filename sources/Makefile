@@ -8,7 +8,7 @@ ALL_SRCS=$(wildcard *.cpp)
 ALL_OBJS=$(patsubst %.cpp,%.o,$(ALL_SRCS))
 
 PROGSDIR=../data
-ALL= truefit ssnormcv isnormcv 
+ALL= truefit cponormcv ssnormcv isnormcv 
 PROGS=$(addprefix $(PROGSDIR)/, $(ALL))
 
 .PHONY: all clean
@@ -35,6 +35,9 @@ endif
 
 $(PROGSDIR)/truefit: TrueFit.o $(OBJS)
 	$(CC) TrueFit.o $(OBJS) $(LDFLAGS) $(LIBS) -o $@
+
+$(PROGSDIR)/cponormcv: CPONormalCV.o $(OBJS)
+	$(CC) CPONormalCV.o $(OBJS) $(LDFLAGS) $(LIBS) -o $@
 
 $(PROGSDIR)/ssnormcv: SSNormalCV.o $(OBJS)
 	$(CC) SSNormalCV.o $(OBJS) $(LDFLAGS) $(LIBS) -o $@
