@@ -10,7 +10,6 @@ int main (int argc, char* argv[])   {
     double tau0 = atof(argv[6]);
     int nsample = atoi(argv[7]);
     int nrep = atoi(argv[8]);
-    int ref = atoi(argv[9]);
 
     double meantruel = 0;
     double meanssl = 0;
@@ -26,13 +25,7 @@ int main (int argc, char* argv[])   {
 
         NormalModel model(p, n+m, theta, tau, tau0);
 
-        double refl = model.GetLogCV0(n,m);
-
         double truel = model.GetLogCV(n,m);
-        if (ref)    {
-            truel -= refl;
-        }
-
         meantruel += truel;
 
         vector<double> sitecv1(m,0);
@@ -45,7 +38,7 @@ int main (int argc, char* argv[])   {
         for (int i=0; i<m; i++) {
             var += 0.5 * (sitecv1[i] - sitecv2[i]) * (sitecv1[i] - sitecv2[i]);
         }
-        cerr << var << '\t' << m*var1 << '\t' << m*var2 << '\t' << ess1 << '\t' << ess2 << '\n';
+
         double estbias = -0.5 * var;
         double esterr2 = var + estbias*estbias;
 
