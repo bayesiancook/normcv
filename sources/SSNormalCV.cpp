@@ -34,6 +34,7 @@ int main (int argc, char* argv[])   {
         double ssl1 = model.GetSteppingLogCV(n,m,nsample, sitecv1, var1, ess1);
         double ssl2 = model.GetSteppingLogCV(n,m,nsample, sitecv2, var2, ess2);
 
+        double ssl = 0.5*(ssl1 + ssl2);
         double var = 0;
         for (int i=0; i<m; i++) {
             var += 0.5 * (sitecv1[i] - sitecv2[i]) * (sitecv1[i] - sitecv2[i]);
@@ -45,12 +46,12 @@ int main (int argc, char* argv[])   {
         double dssl = 0.5 * (ssl1 + ssl2) + 0.5 * var;
         double desterr2 = var;
 
-        meanssl += ssl1;
+        meanssl += ssl;
         meandssl += dssl;
         meanestbias += estbias;
         meanesterr2 += esterr2;
         meandesterr2 += desterr2;
-        meanerr2 += (ssl1-truel)*(ssl1-truel);
+        meanerr2 += (ssl-truel)*(ssl-truel);
         meanderr2 += (dssl-truel)*(dssl-truel);
         meaness += ess1;
 
