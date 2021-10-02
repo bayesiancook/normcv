@@ -23,6 +23,7 @@ along with PhyloBayes. If not, see <http://www.gnu.org/licenses/>.
 #include <sstream>
 #include <iomanip>
 #include <fstream>
+#include "studentC.hpp"
 
 #define MT_LEN       624
 
@@ -72,6 +73,13 @@ class Random {
 	int DrawFromLogDiscreteDistribution(double* ll, int n);
 
 	double logGamma(double a);
+
+    double get_studentC(int df) {
+        if (df < 1000)  {
+            return studentC[df];
+        }
+        return studentC[1000];
+    }
 
 	long int GetCount() {return count;}
 
