@@ -26,6 +26,6 @@ int main (int argc, char* argv[])   {
         double logcv = (logBF(theta, tau0, tau, n) - logBF(theta, tau0, tau, ntrain)) / nvalid;
         double loocv = logBF(theta, tau0, tau, n) - logBF(theta, tau0, tau, n-1);
 
-        cout << theta << '\t' << r1 << '\t' << r0 << '\t' << r1-r0 << '\t' << logbf << '\t' << logcv << '\t' << loocv << '\n';
+        cout << theta << '\t' << r1 << '\t' << r0 << '\t' << r0-r1 << '\t' << logbf << '\t' << logcv << '\t' << loocv << '\n';
     }
 }
