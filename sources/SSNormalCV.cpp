@@ -14,9 +14,12 @@ int main (int argc, char* argv[])   {
 
     double meantruel = 0;
     double meanssl = 0;
-    double meanstdev = 0;
+    double meandssl = 0;
     double meaness = 0;
     double meanerr2 = 0;
+    double meanderr2 = 0;
+    double meanesterr2 = 0;
+    double meandesterr2 = 0;
     double meanestbias = 0;
 
     for (int rep=0; rep<nrep; rep++)    {
@@ -42,26 +45,39 @@ int main (int argc, char* argv[])   {
         for (int i=0; i<m; i++) {
             var += 0.5 * (sitecv1[i] - sitecv2[i]) * (sitecv1[i] - sitecv2[i]);
         }
+        cerr << var << '\t' << m*var1 << '\t' << m*var2 << '\t' << ess1 << '\t' << ess2 << '\n';
         double estbias = -0.5 * var;
-        double stdev = sqrt(var);
-        meanestbias += estbias;
-        meanstdev += stdev;
+        double esterr2 = var + estbias*estbias;
 
-        // double dssl = 0.5 * (ssl1 + ssl2) + 0.5 * var;
+        double dssl = 0.5 * (ssl1 + ssl2) + 0.5 * var;
+        double desterr2 = var;
 
-        meanerr2 += (ssl1-truel)*(ssl1-truel);
-        meaness += ess1;
         meanssl += ssl1;
+        meandssl += dssl;
+        meanestbias += estbias;
+        meanesterr2 += esterr2;
+        meandesterr2 += desterr2;
+        meanerr2 += (ssl1-truel)*(ssl1-truel);
+        meanderr2 += (dssl-truel)*(dssl-truel);
+        meaness += ess1;
+
     }
 
     meantruel /= nrep;
     meanssl /= nrep;
-    meanstdev /= nrep;
+    meandssl /= nrep;
     meanestbias /= nrep;
     meaness /= nrep;
     meanerr2 /= nrep;
+    meanderr2 /= nrep;
+    meandesterr2 /= nrep;
     double meanerr = sqrt(meanerr2);
+    double meanesterr = sqrt(meanesterr2);
+    double meanderr = sqrt(meanderr2);
+    double meandesterr = sqrt(meandesterr2);
     double bias = meanssl - meantruel;
+    double dbias = meandssl - meantruel;
 
-    cout << meantruel << '\t' << meanssl << '\t' << bias << '\t' << meanestbias << '\t' << meanerr << '\t' << meanstdev << '\t' << meaness << '\n';
+    cout << meantruel << '\t' << meanssl << '\t' << bias << '\t' << meanestbias << '\t' << meanerr << '\t' << meanesterr << '\t' << meaness << '\n';
+    cout << meantruel << '\t' << meandssl << '\t' << dbias << '\t' << 0 << '\t' << meanderr << '\t' << meandesterr << '\t' << meaness << '\n';
 }
