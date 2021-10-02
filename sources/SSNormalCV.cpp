@@ -70,6 +70,7 @@ int main (int argc, char* argv[])   {
     meaness /= nrep;
     meanerr2 /= nrep;
     meanderr2 /= nrep;
+    meanesterr2 /= nrep;
     meandesterr2 /= nrep;
     double meanerr = sqrt(meanerr2);
     double meanesterr = sqrt(meanesterr2);
