@@ -154,24 +154,29 @@ class NormalModel   {
         return ret;
     }
 
-    double GetISDLogCV(int n, int m, int nsample)   {
-        double var, ess;
+    double GetISDLogCV(int n, int m, int nsample, double& var, double& ess)   {
         return GetISLogCV(n,m,nsample,var,ess) - GetLogCV0(n,m);
     }
 
-    double GetSteppingLogCV(int n, int m, int nsample, vector<double>& sitecv)  {
+    double GetSteppingLogCV(int n, int m, int nsample, vector<double>& sitecv, double& meanvar, double& meaness)  {
         double tot = 0;
         double var, ess;
+        meaness = 0;
+        meanvar = 0;
         for (int i=0; i<m; i++)   {
             sitecv[i] = GetISLogCV(n+i, 1, nsample, var, ess);
+            meanvar += var;
+            meaness += ess;
             tot += sitecv[i];
         }
+        meanvar /= m;
+        meaness /= m;
         return tot;
     }
 
-    double GetSteppingDLogCV(int n, int m, int nsample) {
+    double GetSteppingDLogCV(int n, int m, int nsample, double& meanvar, double& meaness) {
         vector<double> sitecv(m,0);
-        return GetSteppingLogCV(n, m, nsample, sitecv) - GetLogCV0(n,m);
+        return GetSteppingLogCV(n, m, nsample, sitecv, meaness, meanvar) - GetLogCV0(n,m);
     }
 };
 
