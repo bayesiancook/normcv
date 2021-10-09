@@ -77,19 +77,29 @@ class NormalModel   {
     }
 
     void ComputeSuffStats(int n)  {
-        vector<double> m1(p,0);
-        vector<double> m2(p,0);
-        for (int i=0; i<n; i++) {
+        if (!n) {
             for (int j=0; j<p; j++) {
-                m1[j] += X[i][j];
-                m2[j] += X[i][j]*X[i][j];
+                meanx[j] = 0;
+                meanx2[j] = 0;
+                postx[j] = 0;
+                postv[j] = 0;
             }
         }
-        for (int j=0; j<p; j++) {
-            meanx[j] = m1[j]/n;
-            meanx2[j] = m2[j]/n;
-            postx[j] = n*tau / (tau0 + n*tau) * meanx[j];
-            postv[j] = n*tau / (tau0 + n*tau) * meanx2[j] - postx[j]*postx[j];
+        else    {
+            vector<double> m1(p,0);
+            vector<double> m2(p,0);
+            for (int i=0; i<n; i++) {
+                for (int j=0; j<p; j++) {
+                    m1[j] += X[i][j];
+                    m2[j] += X[i][j]*X[i][j];
+                }
+            }
+            for (int j=0; j<p; j++) {
+                meanx[j] = m1[j]/n;
+                meanx2[j] = m2[j]/n;
+                postx[j] = n*tau / (tau0 + n*tau) * meanx[j];
+                postv[j] = n*tau / (tau0 + n*tau) * meanx2[j] - postx[j]*postx[j];
+            }
         }
     }
 
