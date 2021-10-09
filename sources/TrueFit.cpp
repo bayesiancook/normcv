@@ -14,6 +14,7 @@ int main (int argc, char* argv[])   {
     double tau = atof(argv[6]);
     double tau0 = atof(argv[7]);
 
+    cout << "theta\tR1\tR0\tDR01\tlogBF\tlogCV\tlogLOO\n";
     for (double theta=0; theta<thetamax; theta+=thetastep) {
 
         int ntrain = int(n*(1-f));
