@@ -10,7 +10,8 @@ int main (int argc, char* argv[])   {
     double tau0 = atof(argv[5]);
     int nsample = atoi(argv[6]);
     int nrep = atoi(argv[7]);
-    int persite = atoi(argv[8]);
+    string name = argv[8];
+    int persite = 0;
 
     double meantruel = 0;
     double meanssl = 0;
@@ -29,6 +30,13 @@ int main (int argc, char* argv[])   {
     for (int rep=0; rep<nrep; rep++)    {
 
         NormalModel model(p, n, theta, tau, tau0);
+        if (name != "random")   {
+            ostringstream s;
+            s << name << rep << ".data";
+            ifstream is(s.str().c_str());
+            model.DataFromStream(is);
+        }
+
 
         vector<double> truesitecv(n,0);
         double truel = model.GetLooCV(truesitecv);
@@ -93,8 +101,6 @@ int main (int argc, char* argv[])   {
     double meanderr = sqrt(meanderr2);
     double meandesterr = sqrt(meandesterr2);
     double bias = meanssl - meantruel;
-    double dbias = meandssl - meantruel;
 
-    cout << meantruel << '\t' << meanssl << '\t' << bias << '\t' << meanestbias << '\t' << meanerr << '\t' << meanesterr << '\t' << meaness << '\t' << time << '\n';
-    cout << meantruel << '\t' << meandssl << '\t' << dbias << '\t' << 0 << '\t' << meanderr << '\t' << meandesterr << '\t' << meaness << '\t' << time << '\n';
+    cout << "cpo" << '\t' << p << '\t' << nsample << '\t' << meaness << '\t' << meantruel << '\t' << meanssl << '\t' << bias << '\t' << meanestbias << '\t' << meanerr << '\t' << meanesterr << '\t' << meanderr << '\t' << meandesterr << '\t' << time << '\n';
 }

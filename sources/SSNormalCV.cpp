@@ -4,14 +4,18 @@
 int main (int argc, char* argv[])   {
 
     int p = atoi(argv[1]);
-    int n = atoi(argv[2]);
-    int m = atoi(argv[3]);
+    int nsite = atoi(argv[2]);
+    double f = atof(argv[3]);
+    int m = int(f*nsite);
+    int n = nsite - m;
+
     double theta = atof(argv[4]);
     double tau = atof(argv[5]);
     double tau0 = atof(argv[6]);
     int nsample = atoi(argv[7]);
     int nrep = atoi(argv[8]);
-    int persite = atoi(argv[9]);
+    string name = argv[9];
+    int persite = 0;
 
     double meantruel = 0;
     double meanssl = 0;
@@ -28,6 +32,12 @@ int main (int argc, char* argv[])   {
     for (int rep=0; rep<nrep; rep++)    {
 
         NormalModel model(p, n+m, theta, tau, tau0);
+        if (name != "random")   {
+            ostringstream s;
+            s << name << rep << ".data";
+            ifstream is(s.str().c_str());
+            model.DataFromStream(is);
+        }
 
         double truel = model.GetLogCV(n,m);
         if (persite)    {
@@ -90,9 +100,7 @@ int main (int argc, char* argv[])   {
     double meanderr = sqrt(meanderr2);
     double meandesterr = sqrt(meandesterr2);
     double bias = meanssl - meantruel;
-    double dbias = meandssl - meantruel;
 
-    cout << meantruel << '\t' << meanssl << '\t' << bias << '\t' << meanestbias << '\t' << meanerr << '\t' << meanesterr << '\t' << meaness << '\t' << time << '\n';
-    cout << meantruel << '\t' << meandssl << '\t' << dbias << '\t' << 0 << '\t' << meanderr << '\t' << meandesterr << '\t' << meaness << '\t' << time << '\n';
+    cout << "ss" << '\t' << p << '\t' << nsample << '\t' << meaness << '\t' << meantruel << '\t' << meanssl << '\t' << bias << '\t' << meanestbias << '\t' << meanerr << '\t' << meanesterr << '\t' << meanderr << '\t' << meandesterr << '\t' << time << '\n';
 }
 
