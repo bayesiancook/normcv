@@ -15,6 +15,8 @@ int main (int argc, char* argv[])   {
     int nsample = atoi(argv[7]);
     int nrep = atoi(argv[8]);
     string name = argv[9];
+    int emp = atoi(argv[10]);
+
     int persite = 0;
 
     double meantruel = 0;
@@ -48,8 +50,15 @@ int main (int argc, char* argv[])   {
         vector<double> sitecv1(m,0);
         vector<double> sitecv2(m,0);
         double var1, var2, ess1, ess2;
-        double ssl1 = model.GetSteppingLogCV(n,m,nsample, sitecv1, var1, ess1);
-        double ssl2 = model.GetSteppingLogCV(n,m,nsample, sitecv2, var2, ess2);
+        double ssl1, ssl2;
+        if (emp)    {
+            ssl1 = model.GetEmpiricalSteppingLogCV(n,m,nsample, sitecv1, var1, ess1);
+            ssl2 = model.GetEmpiricalSteppingLogCV(n,m,nsample, sitecv2, var2, ess2);
+        }
+        else    {
+            ssl1 = model.GetSteppingLogCV(n,m,nsample, sitecv1, var1, ess1);
+            ssl2 = model.GetSteppingLogCV(n,m,nsample, sitecv2, var2, ess2);
+        }
         if (persite)    {
             ssl1 /= m;
             ssl2 /= m;

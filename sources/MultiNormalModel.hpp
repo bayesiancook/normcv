@@ -13,6 +13,8 @@ class NormalModel   {
     vector<vector<double>> X;
     vector<double> meanx;
     vector<double> meanx2;
+    vector<double> empmeanx;
+    vector<double> empmeanx2;
     vector<double> postx;
     vector<double> postv;
     vector<double> testmeanx;
@@ -28,6 +30,8 @@ class NormalModel   {
         X.assign(nsite, vector<double>(p,0));
         meanx.assign(p,0);
         meanx2.assign(p,0);
+        empmeanx.assign(p,0);
+        empmeanx2.assign(p,0);
         testmeanx.assign(p,0);
         testmeanx2.assign(p,0);
         postx.assign(p,0);
@@ -117,6 +121,29 @@ class NormalModel   {
             testmeanx2[j] = m2[j]/m;
         }
         testm = m;
+    }
+
+    void ComputeEmpiricalSuffStats(int n)  {
+        if (!n) {
+            for (int j=0; j<p; j++) {
+                empmeanx[j] = 0;
+                empmeanx2[j] = 0;
+            }
+        }
+        else    {
+            vector<double> m1(p,0);
+            vector<double> m2(p,0);
+            for (int i=0; i<n; i++) {
+                for (int j=0; j<p; j++) {
+                    m1[j] += X[i][j];
+                    m2[j] += X[i][j]*X[i][j];
+                }
+            }
+            for (int j=0; j<p; j++) {
+                empmeanx[j] = m1[j]/n;
+                empmeanx2[j] = m2[j]/n;
+            }
+        }
     }
 
     double GetSiteLogProb(const vector<double>& theta, int i)   {
@@ -212,8 +239,81 @@ class NormalModel   {
         return ret;
     }
 
+    double GetEmpiricalLogPrior(int n, double empfrac, const vector<double>& theta) {
+        double emptau0 = tau0 + (1-empfrac)*nsite*tau;
+        double tot = 0;
+        for (int j=0; j<p; j++) {
+            double emppriortheta = (1-empfrac)*nsite*tau*empmeanx[j] / emptau0;
+            tot += 0.5 * (log(emptau0/2/Pi) - emptau0*(theta[j] - emppriortheta)*(theta[j]-emppriortheta));
+        }
+        return tot;
+    }
+
+    double GetISLogCVWithEmpPrior(int n, int m, int nsample, double& var, double& ess)  {
+
+        double empfrac1 = ((double) n) / nsite;
+        double empfrac2 = ((double) (n+m)) / nsite;
+        ComputeSuffStats(n);
+        ComputeTestSuffStats(n,m);
+
+        double emptau0 = tau0 + (1-empfrac1)*nsite*tau;
+        double posttau = emptau0 + n*tau;
+        double sigma = 1.0 / sqrt(posttau);
+
+        vector<double> lnL(nsample,0);
+
+        double max = 0;
+        vector<double> theta(p,0);
+        for (int i=0; i<nsample; i++)   {
+            for (int j=0; j<p; j++) {
+                double emppriortheta = (1-empfrac1)*nsite*tau*empmeanx[j] / emptau0;
+                double px = (emptau0*emppriortheta + n*tau*meanx[j]) / posttau;
+                theta[j] = sigma*rnd::GetRandom().sNormal() + px;
+            }
+            lnL[i] = GetTestLogProb(theta);
+            lnL[i] += GetEmpiricalLogPrior(n+m, empfrac2, theta) - GetEmpiricalLogPrior(n, empfrac1, theta);
+            if ((!i) || (max < lnL[i])) {
+                max = lnL[i];
+            }
+        }
+
+        double tot = 0;
+        double tot2 = 0;
+        for (int i=0; i<nsample; i++)   {
+            double tmp = exp(lnL[i] - max);
+            tot += tmp;
+            tot2 += tmp*tmp;
+        }
+        tot /= nsample;
+        tot2 /= nsample;
+        tot2 /= tot*tot;
+        var = (tot2 - 1) / (nsample-1);
+        ess = nsample/tot2;
+        double ret = log(tot) + max;
+        return ret;
+    }
+
     double GetISDLogCV(int n, int m, int nsample, double& var, double& ess)   {
         return GetISLogCV(n,m,nsample,var,ess) - GetLogCV0(n,m);
+    }
+
+    double GetEmpiricalSteppingLogCV(int n, int m, int nsample, vector<double>& sitecv, double& meanvar, double& meaness)  {
+
+        ComputeEmpiricalSuffStats(n+m);
+
+        double tot = 0;
+        double var, ess;
+        meaness = 0;
+        meanvar = 0;
+        for (int i=0; i<m; i++)   {
+            sitecv[i] = GetISLogCVWithEmpPrior(n+i, 1, nsample, var, ess);
+            meanvar += var;
+            meaness += ess;
+            tot += sitecv[i];
+        }
+        meanvar /= m;
+        meaness /= m;
+        return tot;
     }
 
     double GetSteppingLogCV(int n, int m, int nsample, vector<double>& sitecv, double& meanvar, double& meaness)  {
