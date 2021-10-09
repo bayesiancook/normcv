@@ -6,10 +6,10 @@ int main (int argc, char* argv[])   {
 
     int p = atoi(argv[1]);
     int n = atoi(argv[2]);
-    double theta = atof(argv[4]);
-    double tau = atof(argv[5]);
-    int nrep = atoi(argv[6]);
-    string name = argv[7];
+    double theta = atof(argv[3]);
+    double tau = atof(argv[4]);
+    int nrep = atoi(argv[5]);
+    string name = argv[6];
 
     // not used
     double tau0 = 1.0;
