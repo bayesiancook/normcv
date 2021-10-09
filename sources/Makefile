@@ -8,7 +8,7 @@ ALL_SRCS=$(wildcard *.cpp)
 ALL_OBJS=$(patsubst %.cpp,%.o,$(ALL_SRCS))
 
 PROGSDIR=../data
-ALL= truefit cponormcv ssnormcv isnormcv 
+ALL= simu truefit cponormcv ssnormcv isnormcv 
 PROGS=$(addprefix $(PROGSDIR)/, $(ALL))
 
 .PHONY: all clean
@@ -32,6 +32,9 @@ ifneq ($(MAKECMDGOALS),clean)
 endif
 
 # Targets
+
+$(PROGSDIR)/simu: SimulateData.o $(OBJS)
+	$(CC) SimulateData.o $(OBJS) $(LDFLAGS) $(LIBS) -o $@
 
 $(PROGSDIR)/truefit: TrueFit.o $(OBJS)
 	$(CC) TrueFit.o $(OBJS) $(LDFLAGS) $(LIBS) -o $@

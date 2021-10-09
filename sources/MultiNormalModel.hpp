@@ -38,6 +38,36 @@ class NormalModel   {
 
     ~NormalModel() {}
 
+    void DataToStream(ostream& os) {
+        os << nsite << '\t' << p << '\n';
+        for (int i=0; i<nsite; i++) {
+            for (int j=0; j<p; j++) {
+                os << X[i][j] << '\t';
+            }
+            os << '\n';
+        }
+    }
+
+    void DataFromStream(istream& is)    {
+        int nn, pp;
+        is >> nn >> pp;
+        if (nn != nsite)    {
+            cerr << "error when reading data from file: non matching number of sites\n";
+            exit(1);
+        }
+        if (pp != p)    {
+            cerr << "error when reading data from file: non matching model dimension\n";
+            exit(1);
+        }
+
+        for (int i=0; i<nsite; i++) {
+            for (int j=0; j<p; j++) {
+                is >> X[i][j];
+            }
+        }
+    }
+
+
     void Draw() {
         for (int i=0; i<nsite; i++) {
             for (int j=0; j<p; j++) {
