@@ -16,8 +16,7 @@ int main (int argc, char* argv[])   {
     int nrep = atoi(argv[8]);
     string name = argv[9];
     int emp = atoi(argv[10]);
-
-    int persite = 0;
+    int persite = atoi(argv[11]);
 
     double meantruel = 0;
     double meanssl = 0;
