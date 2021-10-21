@@ -251,8 +251,18 @@ class NormalModel   {
 
     double GetISLogCVWithEmpPrior(int n, int m, int nsample, double& var, double& ess)  {
 
+        /*
         double empfrac1 = ((double) n) / nsite;
         double empfrac2 = ((double) (n+m)) / nsite;
+        */
+        double empfrac1 = ((double) 2*n) / nsite;
+        if (empfrac1 > 1.0) {
+            empfrac1 = 1.0;
+        }
+        double empfrac2 = ((double) 2*(n+m)) / nsite;
+        if (empfrac2 > 1.0) {
+            empfrac2 = 1.0;
+        }
         ComputeSuffStats(n);
         ComputeTestSuffStats(n,m);
 

@@ -17,6 +17,7 @@ int main (int argc, char* argv[])   {
     string name = argv[9];
     int emp = atoi(argv[10]);
     int persite = atoi(argv[11]);
+    int relative = atoi(argv[12]);
 
     double meantruel = 0;
     double meanssl = 0;
@@ -41,6 +42,10 @@ int main (int argc, char* argv[])   {
         }
 
         double truel = model.GetLogCV(n,m);
+        double truel0 = model.GetLogCV0(n,m);
+        if (relative)   {
+            truel -= truel0;
+        }
         if (persite)    {
             truel /= m;
         }
@@ -57,6 +62,10 @@ int main (int argc, char* argv[])   {
         else    {
             ssl1 = model.GetSteppingLogCV(n,m,nsample, sitecv1, var1, ess1);
             ssl2 = model.GetSteppingLogCV(n,m,nsample, sitecv2, var2, ess2);
+        }
+        if (relative)   {
+            ssl1 -= truel0;
+            ssl2 -= truel0;
         }
         if (persite)    {
             ssl1 /= m;
@@ -109,6 +118,7 @@ int main (int argc, char* argv[])   {
     double meandesterr = sqrt(meandesterr2);
     double bias = meanssl - meantruel;
 
-    cout << "ss" << '\t' << p << '\t' << nsample << '\t' << meaness << '\t' << meantruel << '\t' << meanssl << '\t' << bias << '\t' << meanestbias << '\t' << meanerr << '\t' << meanesterr << '\t' << meanderr << '\t' << meandesterr << '\t' << time << '\n';
+    string meth = (f == 1.0) ? "bf" : "ss";
+    cout << meth << '\t' << p << '\t' << nsample << '\t' << meaness << '\t' << meantruel << '\t' << meanssl << '\t' << bias << '\t' << meanestbias << '\t' << meanerr << '\t' << meanesterr << '\t' << meanderr << '\t' << meandesterr << '\t' << time << '\n';
 }
 

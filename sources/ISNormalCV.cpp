@@ -14,9 +14,11 @@ int main (int argc, char* argv[])   {
     double tau = atof(argv[5]);
     double tau0 = atof(argv[6]);
     int nsample = atoi(argv[7]);
+    nsample *= nsite;
     int nrep = atoi(argv[8]);
     string name = argv[9];
     int persite = atoi(argv[10]);
+    int relative  = atoi(argv[11]);
 
     double meantruel = 0;
     double meanisl = 0;
@@ -41,6 +43,10 @@ int main (int argc, char* argv[])   {
         }
 
         double truel = model.GetLogCV(n,m);
+        double truel0 = model.GetLogCV0(n,m);
+        if (relative)   {
+            truel -= truel0;
+        }
         if (persite)    {
             truel /= m;
         }
@@ -49,6 +55,9 @@ int main (int argc, char* argv[])   {
         double var = 0;
         double ess = 0;
         double isl = model.GetISLogCV(n,m,nsample,var,ess);
+        if (relative)   {
+            isl -= truel0;
+        }
         if (persite)    {
             isl /= m;
             var /= m;
@@ -89,5 +98,5 @@ int main (int argc, char* argv[])   {
     double bias = meanisl - meantruel;
     // double dbias = meandisl - meantruel;
 
-    cout << "is" << '\t' << p << '\t' << nsample << '\t' << meaness << '\t' << meantruel << '\t' << meanisl << '\t' << bias << '\t' << meanestbias << '\t' << meanerr << '\t' << meanesterr << '\t' << meanderr << '\t' << meandesterr << '\t' << time << '\n';
+    cout << "is" << '\t' << p << '\t' << nsample/nsite << '\t' << meaness << '\t' << meantruel << '\t' << meanisl << '\t' << bias << '\t' << meanestbias << '\t' << meanerr << '\t' << meanesterr << '\t' << meanderr << '\t' << meandesterr << '\t' << time << '\n';
 }

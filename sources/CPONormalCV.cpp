@@ -12,6 +12,7 @@ int main (int argc, char* argv[])   {
     int nrep = atoi(argv[7]);
     string name = argv[8];
     int persite = atoi(argv[9]);
+    int relative = atoi(argv[10]);
 
     double meantruel = 0;
     double meanssl = 0;
@@ -40,6 +41,10 @@ int main (int argc, char* argv[])   {
 
         vector<double> truesitecv(n,0);
         double truel = model.GetLooCV(truesitecv);
+        double truel0 = model.GetLooCV0(truesitecv);
+        if (relative)   {
+            truel -= truel0;
+        }
         if (persite)    {
             truel /= n;
         }
@@ -50,6 +55,10 @@ int main (int argc, char* argv[])   {
         double var1, var2, ess1, ess2;
         double ssl1 = model.GetLogCPO(nsample, sitecv1, var1, ess1);
         double ssl2 = model.GetLogCPO(nsample, sitecv2, var2, ess2);
+        if (relative)   {
+            ssl1 -= truel0;
+            ssl2 -= truel0;
+        }
         if (persite)    {
             ssl1 /= n;
             ssl2 /= n;
