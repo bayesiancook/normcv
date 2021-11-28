@@ -97,5 +97,5 @@ int main (int argc, char* argv[])   {
     double bias = meanisl - meantruel;
     // double dbias = meandisl - meantruel;
 
-    cout << "is" << '\t' << p << '\t' << nsample/nsite << '\t' << meaness << '\t' << meantruel << '\t' << meanisl << '\t' << bias << '\t' << meanestbias << '\t' << meanerr << '\t' << meanesterr << '\t' << meanderr << '\t' << meandesterr << '\t' << time << '\n';
+    cout << "sis" << '\t' << p << '\t' << nsample/nsite << '\t' << meaness << '\t' << meantruel << '\t' << meanisl << '\t' << bias << '\t' << meanestbias << '\t' << meanerr << '\t' << meanesterr << '\t' << meanderr << '\t' << meandesterr << '\t' << time << '\n';
 }
