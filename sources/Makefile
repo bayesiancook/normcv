@@ -8,7 +8,7 @@ ALL_SRCS=$(wildcard *.cpp)
 ALL_OBJS=$(patsubst %.cpp,%.o,$(ALL_SRCS))
 
 PROGSDIR=../data
-ALL= simu truefit sstruefit cponormcv ssnormcv isnormcv 
+ALL= simu truefit sstruefit cponormcv ssnormcv isnormcv sisnormcv
 PROGS=$(addprefix $(PROGSDIR)/, $(ALL))
 
 .PHONY: all clean
@@ -50,6 +50,9 @@ $(PROGSDIR)/ssnormcv: SSNormalCV.o $(OBJS)
 
 $(PROGSDIR)/isnormcv: ISNormalCV.o $(OBJS)
 	$(CC) ISNormalCV.o $(OBJS) $(LDFLAGS) $(LIBS) -o $@
+
+$(PROGSDIR)/sisnormcv: SiteISNormalCV.o $(OBJS)
+	$(CC) SiteISNormalCV.o $(OBJS) $(LDFLAGS) $(LIBS) -o $@
 
 clean:
 	-rm -f *.o *.d *.d.*

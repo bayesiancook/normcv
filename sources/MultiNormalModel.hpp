@@ -107,6 +107,27 @@ class NormalModel   {
         }
     }
 
+    void ComputeSuffStatsSegmentPlusPoint(int n, int i0)  {
+        vector<double> m1(p,0);
+        vector<double> m2(p,0);
+        for (int i=0; i<n; i++) {
+            for (int j=0; j<p; j++) {
+                m1[j] += X[i][j];
+                m2[j] += X[i][j]*X[i][j];
+            }
+        }
+        for (int j=0; j<p; j++) {
+            m1[j] += X[i0][j];
+            m2[j] += X[i0][j]*X[i0][j];
+        }
+        for (int j=0; j<p; j++) {
+            meanx[j] = m1[j]/(n+1);
+            meanx2[j] = m2[j]/(n+1);
+            postx[j] = (n+1)*tau / (tau0 + (n+1)*tau) * meanx[j];
+            postv[j] = (n+1)*tau / (tau0 + (n+1)*tau) * meanx2[j] - postx[j]*postx[j];
+        }
+    }
+
     void ComputeTestSuffStats(int n, int m)   {
         vector<double> m1(p,0);
         vector<double> m2(p,0);
@@ -173,11 +194,45 @@ class NormalModel   {
         return tot;
     }
 
+    double GetLogMarginal0SegmentPlusPoint(int n, int i0)   {
+        ComputeSuffStatsSegmentPlusPoint(n,i0);
+        double tot = 0;
+        for (int j=0; j<p; j++) {
+            tot += 0.5 * (-(n+1)*log(2*Pi) + (n+1)*log(tau) - (n+1)*tau*meanx2[j]);
+        }
+        return tot;
+    }
+
     double GetLogMarginal(int n)    {
         ComputeSuffStats(n);
         double tot = 0;
         for (int j=0; j<p; j++) {
             tot += 0.5 * (-n*log(2*Pi) + n*log(tau) + log(tau0/(tau0 + n*tau)) - (tau0 + n*tau)*postv[j]);
+        }
+        return tot;
+    }
+
+    double GetLogMarginalSegmentPlusPoint(int n, int i0)    {
+        ComputeSuffStatsSegmentPlusPoint(n,i0);
+        double tot = 0;
+        for (int j=0; j<p; j++) {
+            tot += 0.5 * (-(n+1)*log(2*Pi) + (n+1)*log(tau) + log(tau0/(tau0 + (n+1)*tau)) - (tau0 + (n+1)*tau)*postv[j]);
+        }
+        return tot;
+    }
+
+    double GetSiteLogCV(int n, int m)   {
+        double tot = 0;
+        for (int i=0; i<m; i++) {
+            tot += GetLogMarginalSegmentPlusPoint(n,n+i) - GetLogMarginal(n);
+        }
+        return tot;
+    }
+
+    double GetSiteLogCV0(int n, int m)  {
+        double tot = 0;
+        for (int i=0; i<m; i++) {
+            tot += GetLogMarginal0SegmentPlusPoint(n,n+i) - GetLogMarginal0(n);
         }
         return tot;
     }
@@ -236,6 +291,54 @@ class NormalModel   {
         var = (tot2 - 1) / (nsample-1);
         ess = nsample/tot2;
         double ret = log(tot) + max;
+        return ret;
+    }
+
+    double GetSiteISLogCV(int n, int m, int nsample, double& meanvar, double& meaness)    {
+        ComputeSuffStats(n);
+        // ComputeTestSuffStats(n,m);
+
+        double posttau = tau0 + n*tau;
+        double sigma = 1.0 / sqrt(posttau);
+
+        vector<vector<double> > lnL(nsample,vector<double>(m,0));
+
+        vector<double> theta(p,0);
+        for (int i=0; i<nsample; i++)   {
+            for (int j=0; j<p; j++) {
+                theta[j] = sigma*rnd::GetRandom().sNormal() + postx[j];
+            }
+            for (int j=0; j<m; j++) {
+                lnL[i][j] = GetSiteLogProb(theta, n+j);
+            }
+        }
+
+        double ret = 0;
+        for (int j=0; j<m; j++) {
+            double max = 0;
+            for (int i=0; i<nsample; i++)   {
+                if ((!i) || (max < lnL[i][j]))  {
+                    max = lnL[i][j];
+                }
+            }
+            double tot = 0;
+            double tot2 = 0;
+            for (int i=0; i<nsample; i++)   {
+                double tmp = exp(lnL[i][j] - max);
+                tot += tmp;
+                tot2 += tmp*tmp;
+            }
+            tot /= nsample;
+            tot2 /= nsample;
+            tot2 /= tot*tot;
+            double var = (tot2 - 1) / (nsample-1);
+            double ess = nsample/tot2;
+            ret += log(tot) + max;
+            meanvar += var;
+            meaness += ess;
+        }
+        meanvar /= m;
+        meaness /= m;
         return ret;
     }
 
