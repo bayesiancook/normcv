@@ -8,7 +8,7 @@ ALL_SRCS=$(wildcard *.cpp)
 ALL_OBJS=$(patsubst %.cpp,%.o,$(ALL_SRCS))
 
 PROGSDIR=../data
-ALL= simu truefit cponormcv ssnormcv isnormcv 
+ALL= simu truefit sstruefit cponormcv ssnormcv isnormcv 
 PROGS=$(addprefix $(PROGSDIR)/, $(ALL))
 
 .PHONY: all clean
@@ -35,6 +35,9 @@ endif
 
 $(PROGSDIR)/simu: SimulateData.o $(OBJS)
 	$(CC) SimulateData.o $(OBJS) $(LDFLAGS) $(LIBS) -o $@
+
+$(PROGSDIR)/sstruefit: SampleSizeTrueFit.o $(OBJS)
+	$(CC) SampleSizeTrueFit.o $(OBJS) $(LDFLAGS) $(LIBS) -o $@
 
 $(PROGSDIR)/truefit: TrueFit.o $(OBJS)
 	$(CC) TrueFit.o $(OBJS) $(LDFLAGS) $(LIBS) -o $@
