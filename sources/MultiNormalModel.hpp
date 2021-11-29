@@ -294,7 +294,7 @@ class NormalModel   {
         return ret;
     }
 
-    double GetSiteISLogCV(int n, int m, int nsample, double& meanvar, double& meaness)    {
+    double GetSiteISLogCV(int n, int m, int nsample, double& totvar, double& meaness)    {
         ComputeSuffStats(n);
         // ComputeTestSuffStats(n,m);
 
@@ -314,6 +314,8 @@ class NormalModel   {
         }
 
         double ret = 0;
+        totvar = 0;
+        meaness = 0;
         for (int j=0; j<m; j++) {
             double max = 0;
             for (int i=0; i<nsample; i++)   {
@@ -334,10 +336,9 @@ class NormalModel   {
             double var = (tot2 - 1) / (nsample-1);
             double ess = nsample/tot2;
             ret += log(tot) + max;
-            meanvar += var;
+            totvar += var;
             meaness += ess;
         }
-        meanvar /= m;
         meaness /= m;
         return ret;
     }
