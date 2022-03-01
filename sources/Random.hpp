@@ -72,6 +72,8 @@ class Random {
 	int DrawFromDiscreteDistribution(double* p, int n);
 	int DrawFromLogDiscreteDistribution(double* ll, int n);
 
+	int Poisson(double mu);
+
 	double logGamma(double a);
 
     double get_studentC(int df) {

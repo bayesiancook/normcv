@@ -341,6 +341,17 @@ int Random::FiniteDiscrete(int n, const double* probarray)	{
 // ---------------------------------------------------------------------------------
 
 
+int Random::Poisson(double mu)	{
+
+    	int n = 0;
+	double tottime = sExpo();
+	while (tottime < mu)	{
+		n++;
+		tottime += sExpo();
+	}
+	return n;
+}
+
 double Random::sNormal(void)	{
 
 	double u = Uniform();
